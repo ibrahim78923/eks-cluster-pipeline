@@ -1,71 +1,68 @@
-name: Build, Push, Deploy to Kubernetes
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
-      - prod
+      - main
 
 jobs:
-  build-push-deploy:
+  build:
     runs-on: ubuntu-latest
-    env:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-      KUBECTL_CLUSTER_NAME: ${{ secrets.KUBECTL_CLUSTER_NAME }}
-      KUBECTL_NAMESPACE: ${{ secrets.KUBECTL_NAMESPACE }}
     steps:
       - uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        run: aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Login to ECR
-        uses: aws-actions/ecr-login@v3
-
-      - name: Build Docker image
-        run: docker build -t $ECR_REPOSITORY:$GITHUB_SHA .
-
-      - name: Tag and push Docker image to ECR
+      - name: Login to Docker Hub (optional)
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and tag Docker image
         run: |
-          docker tag $ECR_REPOSITORY:$GITHUB_SHA $ECR_REPOSITORY:latest
-          docker push $ECR_REPOSITORY:$GITHUB_SHA
-          docker push $ECR_REPOSITORY:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} .
+      - name: Push Docker image (optional)
+        uses: docker/push-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
+          tag: ${{ github.sha }}
 
-#       - name: Configure kubectl context
-#         uses: eks-platform/eks-kubectl@v3
-#         with:
-#           cluster-name: ${{ env.KUBECTL_CLUSTER_NAME }}
-#           region: ${{ env.AWS_DEFAULT_REGION }}
+  push-to-ecr:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Log in to Amazon ECR
+        run: aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin
+      - name: Build image tag with ECR URI
+        run: |
+          ECR_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.IMAGE_NAME }}"
+          docker tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} $ECR_URI:$BUILD_NUMBER
+      - name: Push image to Amazon ECR
+        run: |
+          docker push $ECR_URI:$BUILD_NUMBER
 
-#       - name: Apply Kubernetes manifests
-#         run: |
-#           kubectl apply -f deployments.yaml -n ${{ env.KUBECTL_NAMESPACE }}
-#           # Add additional manifest application steps as needed
-
-#       - name: (Optional) Verify deployment status
-#         # Add custom steps to verify successful deployment, e.g., using kubectl get pods
-
-# **Important notes:**
-
-# * You need to create GitHub Secrets with the following names and values:
-#     * `AWS_REGION`: Your AWS region
-#     * `AWS_ACCESS_KEY_ID`: Your AWS access key ID
-#     * `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key
-#     * `ECR_REPOSITORY`: The name of your ECR repository
-#     * `KUBECTL_CLUSTER_NAME`: The name of your Kubernetes cluster
-#     * `KUBECTL_NAMESPACE`: The namespace where you want to deploy the application
-# * This workflow assumes you have a `deployments.yaml` file in the root of your repository containing your Kubernetes deployment manifests. You can adjust this depending on your deployment strategy.
-# * The optional step for verifying deployment status is commented out. You can implement custom steps to check if the deployment was successful using `kubectl` commands.
-
-# Make sure to:
-
-# * Replace the placeholder values with your actual credentials and repository names.
-# * Adjust the commands in the `Apply Kubernetes manifests` step to match your deployment requirements.
-# * Implement checks for deployment success if needed.
-
-# This workflow provides a basic foundation for building, pushing, and deploying a Docker image to Kubernetes. You can adapt and enhance it further based on your specific needs.
-
-
-
+  deploy-to-eks:
+    needs: push-to-ecr
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Install kubectl
+        run: |
+          curl -LO https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+      - name: Configure kubectl access to EKS cluster
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+      - name: Deploy image to EKS cluster
+        run: |
+          # Replace "deployment.yaml" with your actual deployment file
+          kubectl apply -f deployment.yaml
