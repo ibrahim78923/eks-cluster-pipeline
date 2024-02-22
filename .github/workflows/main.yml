@@ -1,9 +1,9 @@
-name: Build, Push, Deploy to EKS
+name: Build, Push, Deploy to Kubernetes
 
 on:
   push:
     branches:
-      - prod
+      - main
 
 jobs:
   build-push-deploy:
@@ -13,13 +13,13 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-      EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+      KUBECTL_CLUSTER_NAME: ${{ secrets.KUBECTL_CLUSTER_NAME }}
       KUBECTL_NAMESPACE: ${{ secrets.KUBECTL_NAMESPACE }}
     steps:
       - uses: actions/checkout@v3
 
-      # - name: Configure AWS credentials
-      #   run: aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }}
+      - name: Configure AWS credentials
+        run: aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }}
 
       - name: Login to ECR
         uses: aws-actions/ecr-login@v3
@@ -33,132 +33,36 @@ jobs:
           docker push $ECR_REPOSITORY:$GITHUB_SHA
           docker push $ECR_REPOSITORY:latest
 
-      # - name: Configure kubectl context
-      #   uses: eks-platform/eks-kubectl@v3
-      #   with:
-      #     cluster-name: ${{ env.EKS_CLUSTER_NAME }}
-      #     region: ${{ env.AWS_DEFAULT_REGION }}
-
-      # - name: Apply Kubernetes manifests
-      #   run: |
-      #     kubectl apply -f deployments.yaml -n ${{ env.KUBECTL_NAMESPACE }}
-      #     # Add additional manifest application steps as needed
-
-      # - name: (Optional) Verify deployment status
-      #   # Add custom steps to verify successful deployment, e.g., using kubectl get pods
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# name: Deploy to Exarta EKS Cluster
-
-# on:
-#   push:
-#     branches: [ prod ]
-
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
-#     # environment:
-#     #   name: production
-#     #   url: ${{ steps.deploy.outputs.deployment_url }}  # Store deployment URL for notification
-#     steps:
-#       - uses: actions/checkout@v3
-
-#       - name: Set up AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v3
+#       - name: Configure kubectl context
+#         uses: eks-platform/eks-kubectl@v3
 #         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           region: ${{ secrets.AWS_REGION }}
+#           cluster-name: ${{ env.KUBECTL_CLUSTER_NAME }}
+#           region: ${{ env.AWS_DEFAULT_REGION }}
 
-#       - name: Login to ECR
-#         uses: aws-actions/amazon-ecr-login@v1
-
-#       - name: Build Docker image
-#         uses: docker/build-push-action@v3
-#         with:
-#           push: true
-#           tags: ${{ secrets.ECR_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
-
-#       - name: Configure kubectl with EKS cluster
-#         uses: aws-actions/eks-deploy-command@v2
-#         with:
-#           cluster-name: ${{ secrets.EKS_CLUSTER_NAME }}
-#           command: |
-#             aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
-
-#       - name: Apply Kubernetes deployment
+#       - name: Apply Kubernetes manifests
 #         run: |
-#           kubectl apply -f deployments.yaml \
-#             --image="${{ secrets.ECR_REGISTRY }}/${{ github.repository }}:${{ github.sha }}"
-#           # Optional: Specify specific image tag if versioning is important
-#           # kubectl apply -f deployments.yaml \
-#           #   --image="${{ secrets.ECR_REGISTRY }}/${{ github.repository }}:latest"
+#           kubectl apply -f deployments.yaml -n ${{ env.KUBECTL_NAMESPACE }}
+#           # Add additional manifest application steps as needed
 
-#       - name: Verify deployment health
-#         run: |
-#           # Implement health checks tailored to your application, e.g.:
-#           kubectl rollout status deployment my-app
-#           # Add wait commands if rolling updates are involved
+#       - name: (Optional) Verify deployment status
+#         # Add custom steps to verify successful deployment, e.g., using kubectl get pods
 
-#       - name: Notify on success
-#         uses: actions/checkout@v3  # Optional: Get latest commit message
-#         with:
-#           persist-credentials: false
-#         run: |
-#           # Replace placeholders with appropriate channels/recipients
-#           curl -X POST https://hooks.slack.com/services/... \
-#             -H 'Content-Type: application/json' \
-#             -d '{
-#               "channel": "#your-deployment-channel",
-#               "username": "GitHub Actions",
-#               "text": "Successfully deployed commit {{ github.sha }} to EKS: ${{ steps.deploy.outputs.deployment_url }}"
-#             }'
+# **Important notes:**
 
-#       - name: Notify on failure (optional)
-#         uses: actions/checkout@v3  # Optional: Get latest commit message
-#         with:
-#           persist-credentials: false
-#         if: ${{ failure() }}
-#         run: |
-#           # Replace placeholders with appropriate channels/recipients
-#           curl -X POST https://hooks.slack.com/services/... \
-#             -H 'Content-Type: application/json' \
-#             -d '{
-#               "channel": "#your-deployment-channel",
-#               "username": "GitHub Actions",
-#               "text": "Deployment of commit {{ github.sha }} to EKS failed. See logs for details."
-#             }'
+# * You need to create GitHub Secrets with the following names and values:
+#     * `AWS_REGION`: Your AWS region
+#     * `AWS_ACCESS_KEY_ID`: Your AWS access key ID
+#     * `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key
+#     * `ECR_REPOSITORY`: The name of your ECR repository
+#     * `KUBECTL_CLUSTER_NAME`: The name of your Kubernetes cluster
+#     * `KUBECTL_NAMESPACE`: The namespace where you want to deploy the application
+# * This workflow assumes you have a `deployments.yaml` file in the root of your repository containing your Kubernetes deployment manifests. You can adjust this depending on your deployment strategy.
+# * The optional step for verifying deployment status is commented out. You can implement custom steps to check if the deployment was successful using `kubectl` commands.
+
+# Make sure to:
+
+# * Replace the placeholder values with your actual credentials and repository names.
+# * Adjust the commands in the `Apply Kubernetes manifests` step to match your deployment requirements.
+# * Implement checks for deployment success if needed.
+
+# This workflow provides a basic foundation for building, pushing, and deploying a Docker image to Kubernetes. You can adapt and enhance it further based on your specific needs.
