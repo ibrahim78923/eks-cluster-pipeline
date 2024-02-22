@@ -30,7 +30,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: aws-actions/configure-aws@v1
+      - uses: aws-actions/configure-aws@v4
         with:
           aws-region: ${{ secrets.AWS_REGION }}
           access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
