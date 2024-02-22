@@ -1,13 +1,13 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-projectName: my-app-1
+projectName: Ezpick
 
 image:
-  repository: 845440620882.dkr.ecr.me-south-1.amazonaws.com/ezpick-frontend
-  tag: prod-a64202ca
+  repository: 845440620882.dkr.ecr.me-south-1.amazonaws.com/ezpick-backend
+  tag: prod-f2866083
   pullPolicy: IfNotPresent
-  containerPort: 3001
+  containerPort: 5900
 imagePullSecrets:
   - name: regcred
 
@@ -44,7 +44,7 @@ ingress:
     # nginx.ingress.kubernetes.io/ingress.class: "nginx"
 #    cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: school.ezpick.co
+    - host: api.ezpick.co
       paths:
         - path: /
           pathType: Prefix

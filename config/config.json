@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "new_server_user",
+    "password": "Wh3T5t0ne@0912",
+    "database": "demo_ezpick",
+    "host": "37.187.72.153",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "ezpick_user",
+    "password": "pass786",
+    "database": "ezpick_db",
+    "host": "16.24.13.211",
+    "dialect": "mysql"
+  }
+}
