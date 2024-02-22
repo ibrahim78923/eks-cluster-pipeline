@@ -1,0 +1,76 @@
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+projectName: my-app-1
+
+image:
+  repository: 845440620882.dkr.ecr.me-south-1.amazonaws.com/ezpick-frontend
+  tag: prod-a64202ca
+  pullPolicy: IfNotPresent
+  containerPort: 3001
+imagePullSecrets:
+  - name: regcred
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    # nginx.ingress.kubernetes.io/ingress.class: "nginx"
+#    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: school.ezpick.co
+      paths:
+        - path: /
+          pathType: Prefix
+
+    # - host: alias.domain.com
+    #   paths:
+    #     - path: /
+    #       pathType: Prefix
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 5120Mi
+  requests:
+    cpu: 200m
+    memory: 1024Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

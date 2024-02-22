@@ -1,0 +1,244 @@
+html,
+body {
+  min-height: 100%;
+}
+
+#__next {
+  height: 100%;
+}
+
+code {
+  font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
+  padding: 0.1rem 0.4rem;
+  font-size: 90%;
+  color: #d400ff;
+  border-radius: 0.1335rem;
+}
+code:not([class*='language-']):before,
+code:not([class*='language-']):after {
+  content: '`';
+}
+code[class*='language-'] {
+  padding: 0;
+}
+
+.react-hot-toast {
+  z-index: 999999999999999999 !important;
+}
+
+.MuiTextField-root input[type='time']::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+
+}
+::-webkit-scrollbar:horizontal {
+  width: 2px;
+    height: 7px !important;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #565978 !important;
+  border-radius: 10px;
+  
+}
+::-webkit-scrollbar-thumb:horizontal {
+  background: #565978 !important;
+  border-radius: 10px;
+  width: 5px;
+  height: 2px;
+  
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.student-Table .ant-table-thead .ant-table-cell  {
+  background-color: #30334E !important;
+  color: rgba(234, 234, 255, 0.87) !important;
+  border-top: 1px solid rgba(234, 234, 255, 0.87);
+} 
+.student-Table-light .ant-table-thead .ant-table-cell  {
+  color: #454545 !important;
+}
+
+.dark .ant-table-tbody {
+  background-color: #30334E !important;
+  color: rgba(234, 234, 255, 0.87) !important;
+}
+.fix_right_dark .ant-table-cell-fix-right {
+  position: sticky!important;
+  z-index: 2;
+  background: #30334E !important;
+}
+
+.fix_left_dark .ant-table-cell-fix-left {
+  position: sticky!important;
+  z-index: 2;
+  background: #30334E !important;
+}
+.custom-table .ant-table-row.ant-table-row-active {
+  background-color: #30334E !important;
+  color: rgba(234, 234, 255, 0.87) !important;}
+
+.custom-table .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #30334E !important;
+  color: rgba(234, 234, 255, 0.87) !important
+}
+.ant-pagination-total-text{
+  color: rgba(234, 234, 255, 0.87) !important
+}
+.ant-pagination-next{
+  background-color: aliceblue !important;
+}
+.ant-pagination-item-link{
+  background-color: aliceblue !important;
+}
+.nofollow{
+  color: rgba(234, 234, 255, 0.87) !important
+}
+
+.ant-pagination-item{
+  background-color: white !important
+}
+
+.light .ant-pagination-total-text{
+  color: black !important
+}
+.image-upload {
+  cursor: pointer;
+}
+.image-upload>input {
+  display: none;
+}
+
+.ant_date_place .ant-picker-input input::placeholder {
+  color: rgba(234, 234, 255, 0.87) !important
+}
+
+.long-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 130px;
+}
+.long-message {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 160px;
+  cursor: pointer;
+}
+
+.long-address {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 200px;
+  cursor: pointer;
+}
+.long-client-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 120px;
+  cursor: pointer;
+}
+.blury-display{
+  filter: blur(5px);
+  pointer-events: none;
+}
+.short-stname{
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Number of lines to show */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.short-stname-with-image{
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Number of lines to show */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.ant-table-wrapper .ant-table-tbody>tr.ant-table-placeholder{
+  background: transparent !important;
+}
+.ant-table-wrapper .ant-table-tbody>tr.ant-table-placeholder:hover{
+  background: transparent !important;
+}
+
+.highlighted-row {
+  /* background-color: #9cdbab; */
+}
+
+.other-row {
+  /* background-color: #f0c25f; */
+}
+.print-card-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.print-logo {
+  flex: 1;
+  text-align: left;
+}
+
+.print-text {
+  flex: 2;
+  text-align: left;
+  color: #000000;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-student-name {
+
+  width: 130px;
+  white-space: nowrap;
+  /* Prevent text from wrapping to the next line */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+
+}
+.card-grade-name {
+
+  width: 100px;
+  white-space: nowrap;
+  /* Prevent text from wrapping to the next line */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+
+}
+.vertical-div {
+  width: 100vw; /* Adjust the width as needed */
+  height: 100vh; /* Adjust the height as needed */
+  transform: rotateX(90deg); /* Rotate the div vertically */
+  transform-origin: top; /* Set the rotation origin to the top */
+}
